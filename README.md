@@ -5,9 +5,9 @@
 
 - [x] Generación de datos con Faker
 - [x] Airflow
-- [] Proyecto DBT
-- [] DAG de generación de datos
-- [] DAG de transformación de datos con DBT
+- [ ] Proyecto DBT
+- [ ] DAG de generación de datos
+- [ ] DAG de transformación de datos con DBT
 
 
 ## Instrucciones para correr sin Docker
