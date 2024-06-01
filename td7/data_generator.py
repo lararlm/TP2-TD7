@@ -3,12 +3,14 @@ import random
 from faker import Faker
 from faker.providers import address, date_time, internet, passport, phone_number
 import uuid
+from typing import Any, Dict, List
 
 PHONE_PROBABILITY = 0.7
 
 
 class DataGenerator:
     def __init__(self):
+        """Instantiates faker instance"""
         self.fake = Faker()
         self.fake.add_provider(address)
         self.fake.add_provider(date_time)
@@ -16,7 +18,24 @@ class DataGenerator:
         self.fake.add_provider(passport)
         self.fake.add_provider(phone_number)
 
-    def generate_people(self, n: int):
+    def generate_people(self, n: int) -> List[Dict[str, Any]]:
+        """Generates n people.
+
+        Parameters
+        ----------
+        n : int
+            Number of people to generate.
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            List of dicts that include first_name, last_name, phone_number,
+            address, country, date_of_birth, passport_number and email.
+
+        Notes
+        -----
+        People are guaranteed to be unique only within a function call.
+        """
         people = []
         for _ in range(n):
             people.append(
@@ -39,7 +58,32 @@ class DataGenerator:
         base_time: datetime.datetime,
         window: datetime.timedelta,
         n: int,
-    ):
+    ) -> List[Dict[str, Any]]:
+        """Generates sessions for people.
+
+        Parameters
+        ----------
+        people : list
+            People to generate events for.
+        base_time : datetime.datetime
+            Base time for sessions.
+        window : datetime.timedelta
+            Time window for sessions. Events will fill
+            the whole window equidistantly.
+        n : int
+            Number of events to generate.
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            List of dicts for events including properties such as
+            person_passport_number, event_time, user_agent, session_id.
+
+        Notes
+        -----
+        Events can be considered to be unique across function calls
+        since a surrogate key is generated using UUID4.
+        """
         sessions = []
         frequency = window / n
         for i in range(n):
