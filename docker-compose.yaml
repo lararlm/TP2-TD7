@@ -1,0 +1,28 @@
+services:
+  airflow:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
+      - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
+      - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
+      - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+
+  postgres_l:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./container_db_l/scripts:/docker-entrypoint-initdb.d
+      - ./container_db_l/:/container_db_l/
+    environment:
+      - POSTGRES_PASSWORD=S3cret
+      - POSTGRES_USER=catedra
+      - POSTGRES_DB=postgres
+
+
+volumes:
+  postgres-db-volume:
+
+   
