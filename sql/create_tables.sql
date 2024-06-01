@@ -1,19 +1,19 @@
 
 
 CREATE TABLE IF NOT EXISTS people (
-    first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    phone_number VARCHAR(50),
-    address VARCHAR(50),
-    country VARCHAR(30),
+    first_name VARCHAR(51),
+    last_name VARCHAR(52),
+    phone_number VARCHAR(53),
+    address VARCHAR(100),
+    country VARCHAR(54),
     date_of_birth TIMESTAMP,
-    passport_number VARCHAR(20) PRIMARY KEY,
-    email VARCHAR(20)
+    passport_number VARCHAR(55) PRIMARY KEY,
+    email VARCHAR(56)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
-    session_id VARCHAR(30) PRIMARY KEY,
+    session_id VARCHAR(50) PRIMARY KEY,
     event_time TIMESTAMP,
-    user_agent VARCHAR(100),
-    person_passport_number VARCHAR(20) REFERENCES people,
+    user_agent VARCHAR(300),
+    person_passport_number VARCHAR(55) REFERENCES people
 );

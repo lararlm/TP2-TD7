@@ -3,6 +3,7 @@ from airflow.operators.python import PythonOperator
 import pendulum
 import datetime
 from td7.data_generator import DataGenerator
+from td7.schema import Schema
 
 EVENTS_PER_DAY = 10_000
 
@@ -12,21 +13,25 @@ def generate_data(base_time: str, n: int):
 
     Parameters
     ----------
-    base_time: str
+    base_time: strpoetry export --without-hashes --format=requirements.txt > requirements.txt
+
         Base datetime to start events from.
     n : int
         Number of events to generate.
     """
     generator = DataGenerator()
-    people = generator.generate_people()
+    schema = Schema()
+    people = generator.generate_people(100)
+    schema.insert(people, "people")
 
+    people_sample = schema.get_people(100)
     sessions = generator.generate_sessions(
-        people,
+        people_sample,
         datetime.datetime.fromisoformat(base_time),
         datetime.timedelta(days=1),
         n,
     )
-    # TODO: save to DB
+    schema.insert(sessions, "sessions")
 
 
 with DAG(

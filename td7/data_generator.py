@@ -3,7 +3,8 @@ import random
 from faker import Faker
 from faker.providers import address, date_time, internet, passport, phone_number
 import uuid
-from typing import Any, Dict, List
+
+from td7.custom_types import Records
 
 PHONE_PROBABILITY = 0.7
 
@@ -18,7 +19,7 @@ class DataGenerator:
         self.fake.add_provider(passport)
         self.fake.add_provider(phone_number)
 
-    def generate_people(self, n: int) -> List[Dict[str, Any]]:
+    def generate_people(self, n: int) -> Records:
         """Generates n people.
 
         Parameters
@@ -58,7 +59,7 @@ class DataGenerator:
         base_time: datetime.datetime,
         window: datetime.timedelta,
         n: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> Records:
         """Generates sessions for people.
 
         Parameters
@@ -87,7 +88,7 @@ class DataGenerator:
         sessions = []
         frequency = window / n
         for i in range(n):
-            person = people[random.randint(0, len(people))]
+            person = people[random.randint(0, len(people)-1)]
             if random.random() < PHONE_PROBABILITY:
                 useragent = self.fake.android_platform_token()
             else:
