@@ -10,6 +10,4 @@ RUN airflow db migrate && airflow users create --username airflow --firstname Pe
 COPY td7/ /opt/airflow/td7
 COPY README.md .env /opt/airflow/
 RUN poetry install
-COPY dbt_tp/ /opt/airflow/dbt_tp/
-RUN poetry shell && cd /opt/airflow/dbt_tp/ && dbt deps
-CMD airflow webserver --port 8080 & airflow scheduler 
+CMD airflow webserver --port 8080 & airflow scheduler
