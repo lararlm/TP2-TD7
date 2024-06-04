@@ -7,7 +7,7 @@
 - [x] Airflow
 - [x] Proyecto DBT
 - [ ] DAG de generación de datos
-- [ ] DAG de transformación de datos con DBT
+- [x] DAG de transformación de datos con DBT
 - [ ] Chequear si es más liviana la imagen con pip sobre poetry
 
 
