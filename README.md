@@ -44,6 +44,7 @@ docker compose up -d
     1. Un ejemplo de un nodo para cargar datos está en dags/fill_data.py.
     2. Un ejemplo de un nodo para correr transformaciones está en dags/run_dbt.py.
 5. Armar las transformaciones de DBT usando el proyecto inicializado en `dbt_tp/`.
+6. Para poder correr el DAG de DBT es necesario configurar una nueva conexión en Airflow: Admin > Connections > Add y luego configurar la conexión para el host `postgres` puerto `5432` con nombre `postgres` y configurar los parámetros de la conexión indicados en el `.env`.
 
 Si quieren agregar dependencias pueden usar:
 
