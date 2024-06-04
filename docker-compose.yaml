@@ -2,7 +2,7 @@ services:
   airflow:
     build: .
     ports:
-      - "18080:8080"
+      - "8080:8080"
     restart: unless-stopped
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
@@ -27,7 +27,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=$POSTGRES_DB
     healthcheck:
       test:
         ["CMD", "psql", "-U", "$POSTGRES_USER", "-c", "SELECT 1", "postgres"]
@@ -38,7 +38,7 @@ services:
   dbt:
     build:
       context: dbt_tp
-    restart: no
+    restart: "no"
     ports:
       - 8085:8085
     volumes:
@@ -48,7 +48,7 @@ services:
       - PG_DB_PORT=5432
       - PG_DB_USER=$POSTGRES_USER
       - PG_DB_PASSWORD=$POSTGRES_PASSWORD
-      - PG_DB_DBNAME=postgres
+      - PG_DB_DBNAME=$POSTGRES_DB
     command: --help
     depends_on:
       postgres:
