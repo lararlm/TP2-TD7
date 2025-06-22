@@ -1,105 +1,120 @@
-import datetime
 import random
+from datetime import datetime
 from faker import Faker
-from faker.providers import address, date_time, internet, passport, phone_number
-import uuid
+from typing import List, Dict
+import typing
 
-from td7.custom_types import Records
+#from custom_types import Records
 
-PHONE_PROBABILITY = 0.7
-
+Record = typing.Dict[str, typing.Any]
+Records = typing.List[Record]
 
 class DataGenerator:
     def __init__(self):
-        """Instantiates faker instance"""
-        self.fake = Faker()
-        self.fake.add_provider(address)
-        self.fake.add_provider(date_time)
-        self.fake.add_provider(internet)
-        self.fake.add_provider(passport)
-        self.fake.add_provider(phone_number)
+        self.fake = Faker("es_AR")
+        self.fake.seed_instance(42)
 
-    def generate_people(self, n: int) -> Records:
-        """Generates n people.
+        # ID ranges predefinidos (basados en inserts de tablas normalizadas)
+        self.niveles = list(range(1, 6))
+        self.coberturas = list(range(1, 4))
+        self.tipos_vivienda = list(range(1, 5))
+        self.condiciones_laborales = list(range(1, 6))
+        self.vinculos_sexoaf = list(range(1, 6))
+        self.vinculos_familiares = list(range(1, 7))
+        self.vinculos_universidad = list(range(1, 6))
+        self.tipos_violencia = list(range(1, 7))
+        self.expresiones_violencia = list(range(1, 8))
 
-        Parameters
-        ----------
-        n : int
-            Number of people to generate.
+    def generate_personas(self, n=10) -> Records:
+        return [
+            {
+                "dni": self.fake.unique.random_int(min=10_000_000, max=50_000_000),
+                "nombre": self.fake.first_name(),
+                "apellido": self.fake.last_name(),
+                "fecha_nacimiento": self.fake.date_of_birth(minimum_age=18, maximum_age=90),
+                "nacionalidad": self.fake.country(),
+                "telefono": self.fake.phone_number(),
+                "mail": self.fake.email()
+            }
+            for _ in range(n)
+        ]
 
-        Returns
-        -------
-        List[Dict[str, Any]]
-            List of dicts that include first_name, last_name, phone_number,
-            address, country, date_of_birth, passport_number and email.
+    def generate_solicitantes(self, personas: Records) -> Records:
+        return [
+            {
+                "dni": p["dni"],
+                "genero": random.choice(["masculino", "femenino", "no binario"]),
+                "orientacion_sexual": random.choice(["heterosexual", "gay", "lesbiana", "bisexual", "otro"]),
+                "maximo_nivel_educativo": random.choice(self.niveles),
+                "cobertura_salud": random.choice(self.coberturas),
+                "tipo_vivienda": random.choice(self.tipos_vivienda),
+                "condicion_laboral": random.choice(self.condiciones_laborales),
+                "vinculo_sexoaf": random.choice(self.vinculos_sexoaf),
+                "vinculo_familiar": random.choice(self.vinculos_familiares)
+            }
+            for p in personas[:len(personas)//2]  # La mitad como solicitantes
+        ]
 
-        Notes
-        -----
-        People are guaranteed to be unique only within a function call.
-        """
-        people = []
+    def generate_denunciados(self, personas: Records) -> Records:
+        return [
+            {
+                "dni": p["dni"],
+                "vinculo_universidad_id": random.choice(self.vinculos_universidad)
+            }
+            for p in personas[len(personas)//2:]  # Otra mitad como denunciados
+        ]
+
+    def generate_denuncias(self, solicitantes: Records, denunciados: Records) -> Records:
+        n = min(len(solicitantes), len(denunciados))
+        return [
+            {
+                "dni_solicitante": solicitantes[i]["dni"],
+                "dni_denunciado": denunciados[i]["dni"]
+            }
+            for i in range(n)
+        ]
+
+    def generate_unidades(self, n=5) -> Records:
+        return [
+            {"nombre": f"Unidad_{self.fake.unique.word().capitalize()}"}
+            for _ in range(n)
+        ]
+
+    def generate_unidad_pertenencia(self, unidades: Records) -> Records:
+        relaciones = []
+        for i in range(1, len(unidades)):
+            relaciones.append({
+                "nombre_unidad_contenedora": unidades[0]["nombre"],  # raíz
+                "nombre_unidad_contenida": unidades[i]["nombre"]
+            })
+        return relaciones
+
+    def generate_espacios(self, n=10) -> tuple[Records, Records, Records]:
+        espacios, academicos, no_academicos = [], [], []
         for _ in range(n):
-            people.append(
-                {
-                    "first_name": self.fake.unique.first_name(),
-                    "last_name": self.fake.unique.last_name(),
-                    "phone_number": self.fake.unique.phone_number(),
-                    "address": self.fake.unique.address(),
-                    "country": self.fake.unique.country(),
-                    "date_of_birth": self.fake.unique.date_of_birth(),
-                    "passport_number": self.fake.unique.passport_number(),
-                    "email": self.fake.unique.ascii_email(),
-                }
-            )
-        return people
-
-    def generate_sessions(
-        self,
-        people: list,
-        base_time: datetime.datetime,
-        window: datetime.timedelta,
-        n: int,
-    ) -> Records:
-        """Generates sessions for people.
-
-        Parameters
-        ----------
-        people : list
-            People to generate events for.
-        base_time : datetime.datetime
-            Base time for sessions.
-        window : datetime.timedelta
-            Time window for sessions. Events will fill
-            the whole window equidistantly.
-        n : int
-            Number of events to generate.
-
-        Returns
-        -------
-        List[Dict[str, Any]]
-            List of dicts for events including properties such as
-            person_passport_number, event_time, user_agent, session_id.
-
-        Notes
-        -----
-        Events can be considered to be unique across function calls
-        since a surrogate key is generated using UUID4.
-        """
-        sessions = []
-        frequency = window / n
-        for i in range(n):
-            person = people[random.randint(0, len(people)-1)]
-            if random.random() < PHONE_PROBABILITY:
-                useragent = self.fake.android_platform_token()
+            nombre = f"Espacio_{self.fake.unique.word().capitalize()}"
+            descripcion = self.fake.sentence()
+            tipo = random.choice(["Academico", "No Academico"])
+            espacio = {"nombre": nombre, "descripcion": descripcion, "tipo": tipo}
+            espacios.append(espacio)
+            if tipo == "Academico":
+                academicos.append(nombre)
             else:
-                useragent = self.fake.chrome()
+                no_academicos.append(nombre)
+        return espacios, academicos, no_academicos
 
-            sessions.append(
-                {
-                    "person_passport_number": person["passport_number"],
-                    "event_time": base_time + i * frequency,
-                    "user_agent": useragent,
-                    "session_id": str(uuid.uuid4()),
-                }
-            )
-        return sessions
+    def generate_espacio_academico(self, nombres: List[str], unidades: Records) -> Records:
+        return [{"nombre": nombre, "nombre_unidad": random.choice(unidades)["nombre"]} for nombre in nombres]
+
+    def generate_espacio_no_academico(self, nombres: List[str]) -> Records:
+        return [{"nombre": nombre} for nombre in nombres]
+
+    def generate_sucesos(self, espacios: Records) -> Records:
+        return [
+            {
+                "tipo_violencia_id": random.choice(self.tipos_violencia),
+                "expresion_violencia": random.choice(self.expresiones_violencia),
+                "nombre_espacio": e["nombre"]
+            }
+            for e in espacios
+        ]
