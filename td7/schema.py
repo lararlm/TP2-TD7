@@ -15,7 +15,6 @@ class Schema:
         """Truncates a table using CASCADE to handle foreign keys."""
         with self.connection.cursor() as cur:
             try:
-                # FIX: Removed double quotes around the table name
                 query = f'TRUNCATE TABLE {table} RESTART IDENTITY CASCADE;'
                 cur.execute(query)
                 print(f"[OK] Truncated table {table}")
