@@ -4,8 +4,6 @@ from faker import Faker
 from typing import List, Dict
 import typing
 
-#from custom_types import Records
-
 Record = typing.Dict[str, typing.Any]
 Records = typing.List[Record]
 
@@ -14,7 +12,6 @@ class DataGenerator:
         self.fake = Faker("es_AR")
         self.fake.seed_instance(42)
 
-        # ID ranges predefinidos (basados en inserts de tablas normalizadas)
         self.niveles = list(range(1, 6))
         self.coberturas = list(range(1, 4))
         self.tipos_vivienda = list(range(1, 5))
