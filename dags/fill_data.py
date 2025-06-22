@@ -6,22 +6,15 @@ import pendulum
 import sys
 import os
 
-# Adds the parent directory to the Python path to find the 'td7' module
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from td7.data_generator import DataGenerator
 from td7.schema import Schema
 
-# --- Constants ---
 PEOPLE_TO_GENERATE = 200
 UNITS_TO_GENERATE = 5
 SPACES_TO_GENERATE = 10
 
-# =============================================================================
-# DEFINE PYTHON CALLABLES FOR EACH TASK
-# =============================================================================
-
-# --- Functions for People & Complaints Path ---
 
 def _generate_people(n: int):
     """Wipes and inserts the core people entities."""
@@ -38,7 +31,6 @@ def _generate_people(n: int):
     denunciados = generator.generate_denunciados(personas)
     schema.insert(denunciados, "Denunciado")
     print("People entities inserted successfully.")
-    # Return the generated data for the downstream task
     return {
         "personas": personas,
         "solicitantes": solicitantes,
@@ -52,7 +44,6 @@ def _link_complaints(ti: TaskInstance):
     schema.truncate_table("Denuncia")
 
     print("Generating complaint links (denuncias).")
-    # Pull the generated people data from the upstream task
     data = ti.xcom_pull(task_ids='generate_people')
     solicitantes = data["solicitantes"]
     denunciados = data["denunciados"]
@@ -63,8 +54,6 @@ def _link_complaints(ti: TaskInstance):
     print("Complaint links inserted successfully.")
 
 
-# --- Functions for Spaces & Incidents Path ---
-
 def _generate_and_classify_spaces():
     """Generates Unidades and Espacios, then classifies them for parallel processing."""
     schema = Schema()
@@ -73,7 +62,7 @@ def _generate_and_classify_spaces():
     print("Truncating structure-related tables...")
     schema.truncate_table("Unidad")
     schema.truncate_table("Espacio")
-    schema.truncate_table("Suceso") # Truncate Suceso here as well
+    schema.truncate_table("Suceso") 
 
     print("Generating Unidades and base Espacios...")
     unidades = generator.generate_unidades(n=UNITS_TO_GENERATE)
@@ -84,7 +73,6 @@ def _generate_and_classify_spaces():
     
     print(f"Classified {len(academicos)} academic spaces and {len(no_academicos)} non-academic spaces.")
     
-    # Pass data to downstream tasks via XComs
     return {
         "unidades": unidades,
         "espacios": espacios,
@@ -146,22 +134,18 @@ def _generate_incidents(ti: TaskInstance):
     schema.insert(sucesos, "Suceso")
     print("Incidents generated successfully.")
 
-# =============================================================================
-# DEFINE THE AIRFLOW DAG
-# =============================================================================
 
 with DAG(
-    dag_id="full_data_pipeline_with_bifurcation",
+    dag_id="fill_data",
     start_date=pendulum.datetime(2025, 6, 22, tz="UTC"),
     schedule_interval="@daily",
     catchup=False,
-    description="Generates all data with a bifurcation for space processing."
+    description=""
 ) as dag:
     
     start = EmptyOperator(task_id="start")
     end = EmptyOperator(task_id="end")
 
-    # --- Path A: People & Complaints Tasks ---
     generate_people_task = PythonOperator(
         task_id="generate_people",
         python_callable=_generate_people,
@@ -173,7 +157,6 @@ with DAG(
         python_callable=_link_complaints,
     )
 
-    # --- Path B: Spaces & Incidents Tasks ---
     generate_and_classify_spaces_task = PythonOperator(
         task_id="generate_and_classify_spaces",
         python_callable=_generate_and_classify_spaces,
@@ -194,7 +177,6 @@ with DAG(
         python_callable=_generate_incidents,
     )
 
-    # --- Define Final Workflow Dependencies ---
     start >> [generate_people_task, generate_and_classify_spaces_task]
     
     generate_people_task >> link_complaints_task
