@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  - name: raw_data  # Este es el nombre del grupo de fuentes que usas en {{ source('raw_data', ...) }}
+    description: "Tablas crudas cargadas por el pipeline de Airflow desde PostgreSQL."
+    database: "{{ env_var('PG_DB_DBNAME', 'airflow') }}"
+    schema: public
+    
+    # Aquí listamos todas las tablas base que tus modelos de dbt podrían necesitar
+    tables:
+      - name: Persona
+        columns:
+          - name: dni
+            tests:
+              - unique
+              - not_null
+      
+      - name: Solicitante
+        columns:
+          - name: dni
+            tests:
+              - unique
+              - not_null
+              - relationships:
+                  to: source('raw_data', 'Persona')
+                  field: dni
+
+      - name: Denunciado
+      - name: Denuncia
+      - name: Unidad
+      - name: Espacio
+      - name: Espacio_Academico
+      - name: Espacio_No_Academico
+      - name: Tipo_Violencia
+      - name: Expresion_Violencia
+      - name: Suceso
