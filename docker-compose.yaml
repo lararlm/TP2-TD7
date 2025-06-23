@@ -36,5 +36,24 @@ services:
       timeout: 5s
       retries: 5
 
+  dbt:
+    build:
+      context: dbt_tp
+    restart: "no"
+    ports:
+      - 8085:8085
+    volumes:
+      - ./dbt_tp:/dbt
+    environment:
+      - PG_DB_HOST=postgres
+      - PG_DB_PORT=5432
+      - PG_DB_USER=$POSTGRES_USER
+      - PG_DB_PASSWORD=$POSTGRES_PASSWORD
+      - PG_DB_DBNAME=$POSTGRES_DB_NAME
+    command: --help
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres-db-volume:
