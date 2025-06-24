@@ -18,3 +18,9 @@ sources:
       - name: tipo_Violencia
       - name: expresion_Violencia
       - name: suceso
+      - name: nivel_educativo
+      - name: vinculo_universidad
+      - name: condicion_laboral
+      - name: tipo_vivienda
+
+
