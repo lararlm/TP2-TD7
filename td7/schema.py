@@ -7,7 +7,7 @@ Records = List[Record]
 
 class Schema:
     def __init__(self):
-        hook = PostgresHook(postgres_conn_id="postgres_default")
+        hook = PostgresHook(postgres_conn_id="postgres")
         self.connection = hook.get_conn()
         self.connection.autocommit = True
 

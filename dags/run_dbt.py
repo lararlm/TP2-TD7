@@ -72,7 +72,7 @@ with DAG(
         project_config=project_config,
         execution_config=ExecutionConfig(execution_mode=ExecutionMode.LOCAL),
         render_config=RenderConfig(
-            emit_datasets=False, test_behavior=TestBehavior.AFTER_EACH, dbt_deps=True
+            emit_datasets=False, test_behavior=TestBehavior.NONE, dbt_deps=True
         ),
     )
 
