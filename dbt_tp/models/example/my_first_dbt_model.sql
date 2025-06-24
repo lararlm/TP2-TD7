@@ -9,7 +9,7 @@ WITH gender_counts AS (
         genero,
         COUNT(dni) AS numero_de_denunciantes
     FROM
-        {{ source('raw_data', 'Solicitante') }}
+        {{ source('raw_data', 'solicitante') }}
     GROUP BY
         genero
 ),
@@ -18,7 +18,7 @@ total_counts AS (
     SELECT
         COUNT(dni) AS total_denunciantes
     FROM
-        {{ source('raw_data', 'Solicitante') }}
+        {{ source('raw_data', 'solicitante') }}
 )
 
 SELECT

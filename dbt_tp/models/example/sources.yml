@@ -7,14 +7,14 @@ sources:
     schema: public
     
     tables:
-      - name: Persona
-      - name: Solicitante
-      - name: Denunciado
-      - name: Denuncia
-      - name: Unidad
-      - name: Espacio
-      - name: Espacio_Academico
-      - name: Espacio_No_Academico
-      - name: Tipo_Violencia
-      - name: Expresion_Violencia
-      - name: Suceso
+      - name: persona
+      - name: solicitante
+      - name: denunciado
+      - name: denuncia
+      - name: unidad
+      - name: espacio
+      - name: espacio_Academico
+      - name: espacio_No_Academico
+      - name: tipo_Violencia
+      - name: expresion_Violencia
+      - name: suceso
